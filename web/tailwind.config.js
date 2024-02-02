@@ -6,6 +6,7 @@ export default {
       sans: ["Poppins"],
     },
     colors: {
+      bg: "#999",
       purple1: "#9F7FFF",
       purple2: "#8055FE",
       orange1: "#EA8247",

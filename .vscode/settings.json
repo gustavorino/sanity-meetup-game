@@ -1,0 +1,25 @@
+{
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "stylelint.validate": ["css", "postcss", "typescript", "typescriptreact"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.organizeImports": "explicit",
+    "source.addMissingImports": "explicit"
+  },
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#060505",
+    "activityBar.inactiveForeground": "#ffffff",
+    "activityBarBadge.background": "#004400"
+  },
+  "tailwindCSS.classAttributes": ["class", "className"]
+}
