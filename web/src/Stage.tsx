@@ -3,7 +3,7 @@
 import { OrbitControls, useHelper } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useRef } from "react";
-import { Euler, SpotLightHelper } from "three";
+import { Euler, PointLightHelper, SpotLightHelper } from "three";
 
 import "./3dComponents/Card.tsx";
 import { Card } from "./3dComponents/Card.tsx";
@@ -25,20 +25,24 @@ export function Stage() {
 
 export function Scene() {
   const spotLight = useRef<any>();
+  const pointLight = useRef<any>();
 
   useHelper(spotLight, SpotLightHelper, "red");
+  useHelper(pointLight, PointLightHelper, 2, "blue");
   return (
     <>
-      <ambientLight castShadow={false} intensity={Math.PI / 1.25} />
+      <ambientLight color={"#FFF"} castShadow={false} intensity={Math.PI / 2} />
       <spotLight
         ref={spotLight}
-        castShadow
+        castShadow={true}
         position={[0, 40, 0]}
         angle={0.3}
         penumbra={1}
         decay={0}
+        color={"#FFFFFF"}
         intensity={4}
       />
+
       <group rotation={[0, Math.PI / 2 + 0.05, 0]}>
         <Card />
       </group>
@@ -56,7 +60,7 @@ function Floor() {
       receiveShadow
     >
       <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color={"#999"} />
+      <meshStandardMaterial color={"#FFF"} />
     </mesh>
   );
 }

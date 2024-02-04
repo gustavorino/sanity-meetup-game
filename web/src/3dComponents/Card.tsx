@@ -18,6 +18,7 @@ declare global {
 
 // Paul West @prisoner849 https://discourse.threejs.org/u/prisoner849
 // https://discourse.threejs.org/t/simple-curved-plane/26647/10
+
 class CardGeometry extends THREE.PlaneGeometry {
   constructor() {
     super(2.5, 3.5, 10, 2020);
@@ -75,7 +76,7 @@ export function Card() {
           radius={0.222}
           side={THREE.FrontSide}
           transparent
-          url="/card-front.png"
+          url="http://localhost:3000/screenshot"
         >
           <cardGeometry></cardGeometry>
         </Image>
