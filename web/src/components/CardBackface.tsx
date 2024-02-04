@@ -3,7 +3,8 @@ export function CardBackface() {
     <div className="aspect-[5/7] w-screen bg-purple2">
       <div className="p-[10vw]">
         <div className="text-[10vw]">
-          O que é o sanity e por que ele funciona tão bem?
+          {Math.round(100 * Math.random())} : O que é o sanity e por que ele
+          funciona tão bem?
         </div>
       </div>
     </div>

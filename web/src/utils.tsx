@@ -37,3 +37,23 @@ class BentPlaneGeometry extends THREE.PlaneGeometry {
 }
 
 extend({ BentPlaneGeometry });
+
+export function rand(min: number = 0, max: number = 1) {
+  return min + Math.random() * (max - min);
+}
+
+import RandSeed from "rand-seed";
+
+const detRand = new RandSeed("11"); // hardcoded seed to keep it deterministic
+
+export function drand(min: number = 0, max: number = 1) {
+  return min + detRand.next() * (max - min);
+}
+
+export function lerp(ini: number, end: number, t: number) {
+  return ini + (end - ini) * t;
+}
+
+export function fit(i: number, min: number = 0, max: number = 1) {
+  return min + (i % (max - min));
+}

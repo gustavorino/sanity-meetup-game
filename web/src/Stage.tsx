@@ -1,25 +1,98 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrbitControls, useHelper } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { useRef } from "react";
-import { Euler, PointLightHelper, SpotLightHelper } from "three";
-
+import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
+import { Euler, Group, PointLightHelper, SpotLightHelper } from "three";
 import "./3dComponents/Card.tsx";
 import { Card } from "./3dComponents/Card.tsx";
+import { useGlobalState } from "./State.tsx";
 import "./utils.tsx";
+import { drand, fit } from "./utils.tsx";
+
+const INITIAL_Y = 30;
+const INITIAL_H_AREA = 12;
+const SLOW_MO = 1.1;
 
 export function Stage() {
   return (
     <Canvas
+      dpr={[1, 2]}
       camera={{
-        position: [0, 0, 6],
+        fov: 50,
+        position: [0, INITIAL_Y, 6],
+        rotation: [0, 0, 0],
       }}
       shadows
     >
       <Scene />
-      <OrbitControls />
+      <OrbitControls target={[0, INITIAL_Y, 0]} />
+      <Cards />
     </Canvas>
+  );
+}
+
+function FallingCard(props: GroupProps) {
+  const { mode } = useGlobalState();
+  const consts = useMemo(() => {
+    return {
+      x: drand(-1, 1),
+      y: drand(-1, 1),
+      z: drand(-1, 1),
+    };
+  }, []);
+  const ref = useRef<Group>(null);
+
+  useFrame((state, delta) => {
+    if (ref.current && mode == "home") {
+      if (ref.current.position.y < INITIAL_Y - INITIAL_H_AREA) {
+        ref.current.position.y += INITIAL_H_AREA * 2;
+      }
+
+      ref.current.position.y -= delta * 10 * SLOW_MO;
+      ref.current.rotation.x += consts.x * delta * SLOW_MO;
+      ref.current.rotation.y += consts.y * delta * SLOW_MO;
+      ref.current.rotation.z += consts.z * delta * SLOW_MO;
+    }
+  });
+
+  // useEffect(() => {
+  //   if (mode == "cards") {
+  //   }
+  // }, [mode]);
+
+  return (
+    <group {...props} ref={ref}>
+      <Card />
+    </group>
+  );
+}
+
+function Cards() {
+  const initialProps = useMemo(() => {
+    return Array(20)
+      .fill(0)
+      .map((_, i) => {
+        const distance = fit(i, 4, 20);
+        const angle = -Math.PI / 2 + fit(i * 10.95, -1.5, 1.5);
+
+        return {
+          rotation: [drand() * 3, drand() * 3, drand() * 3] as any,
+          position: [
+            Math.cos(angle) * distance,
+            INITIAL_Y + fit(i, -INITIAL_H_AREA, INITIAL_H_AREA),
+            Math.sin(angle) * distance,
+          ] as any,
+        };
+      });
+  }, []);
+
+  return (
+    <>
+      {initialProps.map((props, i) => {
+        return <FallingCard key={i} {...props} />;
+      })}
+    </>
   );
 }
 

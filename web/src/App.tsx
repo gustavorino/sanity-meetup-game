@@ -1,9 +1,12 @@
 import { Stage } from "./Stage.tsx";
+import { StateProvider } from "./State.tsx";
 
 function App() {
   return (
     <>
-      <Stage />
+      <StateProvider>
+        <Stage />
+      </StateProvider>
     </>
   );
 }
