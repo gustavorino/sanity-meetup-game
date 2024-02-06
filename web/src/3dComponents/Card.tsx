@@ -78,7 +78,7 @@ extend({ CardGeometry });
 
 export function Card(props: GroupProps) {
   const params = useMemo(() => {
-    return { curveZ: drand(-0.2, 0.2), curveY: drand(-0.2, 0.2) };
+    return { curveZ: drand(0, 0.1), curveY: drand(-0.1, 0) };
   }, []);
 
   return (
@@ -89,7 +89,7 @@ export function Card(props: GroupProps) {
           radius={0.222}
           side={THREE.BackSide}
           transparent
-          url="/card-red.png"
+          url="/back.png"
         >
           <cardGeometry {...params}></cardGeometry>
         </Image>

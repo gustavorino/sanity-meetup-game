@@ -1,7 +1,15 @@
 const puppeteer = require("puppeteer");
 const { getChrome } = require("./chrome-script");
+const fs = require("fs");
 
 module.exports.screenshot = async (event) => {
+  return {
+    headers: { "Content-Type": "image/png" },
+    statusCode: 200,
+    body: fs.readFileSync("./screenshot_full.jpg").toString("base64"),
+    isBase64Encoded: true,
+  };
+
   let url = "http://localhost:5173/card/";
   if (event?.queryStringParameters?.url) {
     url = event.queryStringParameters.url;

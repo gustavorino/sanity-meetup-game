@@ -1,20 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { OrbitControls, useHelper } from "@react-three/drei";
-import { Canvas, GroupProps, useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { Euler, Group, PointLightHelper, SpotLightHelper } from "three";
+import { OrbitControls, OrbitControlsProps } from "@react-three/drei";
+import { Canvas, GroupProps, useFrame, useThree } from "@react-three/fiber";
+import TWEEN from "@tweenjs/tween.js";
+import { useEffect, useMemo, useRef } from "react";
+import { Euler, Group } from "three";
 import "./3dComponents/Card.tsx";
 import { Card } from "./3dComponents/Card.tsx";
 import { useGlobalState } from "./State.tsx";
+import { custom } from "./easings.ts";
 import "./utils.tsx";
 import { drand, fit } from "./utils.tsx";
 
+const CARD_COUNT = 18;
 const INITIAL_Y = 30;
 const INITIAL_H_AREA = 12;
 const SLOW_MO = 1.1;
+const COLS = 7;
+
+const cardIds = Array(CARD_COUNT)
+  .fill(0)
+  .map((_, i) => `card${i}`);
 
 export function Stage() {
+  const orbitControls = useRef<OrbitControlsProps>(null);
+  const { mode } = useGlobalState();
+  useEffect(() => {
+    if (mode === "stack" && orbitControls.current) {
+      new TWEEN.Tween(orbitControls.current.target || {})
+        .to({ x: 0, y: 0, z: 2 }, 1500)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+      new TWEEN.Tween(orbitControls.current.object!.position)
+        .to({ x: 0, y: 12, z: 12 }, 2000)
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .start();
+    }
+  });
   return (
     <Canvas
       dpr={[1, 2]}
@@ -26,7 +48,7 @@ export function Stage() {
       shadows
     >
       <Scene />
-      <OrbitControls target={[0, INITIAL_Y, 0]} />
+      <OrbitControls ref={orbitControls as any} target={[0, INITIAL_Y, 0]} />
       <Cards />
     </Canvas>
   );
@@ -43,7 +65,7 @@ function FallingCard(props: GroupProps) {
   }, []);
   const ref = useRef<Group>(null);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (ref.current && mode == "home") {
       if (ref.current.position.y < INITIAL_Y - INITIAL_H_AREA) {
         ref.current.position.y += INITIAL_H_AREA * 2;
@@ -69,8 +91,54 @@ function FallingCard(props: GroupProps) {
 }
 
 function Cards() {
+  const { mode } = useGlobalState();
+  const { scene, camera } = useThree();
+
+  useEffect(() => {
+    if (mode === "stack") {
+      const xOffset = 3 * ((COLS - 2) / 2);
+      const zOffset = 4;
+
+      cardIds.forEach((id, i) => {
+        const card = scene.getObjectByName(id)!;
+        const row = Math.floor(i / (COLS - 1));
+        const col = i % (COLS - 1);
+
+        card.rotation.x = card.rotation.x % (Math.PI * 2);
+        card.rotation.y = card.rotation.y % (Math.PI * 2);
+        card.rotation.z = card.rotation.z % (Math.PI * 2);
+
+        const time = 1700 + i * 100;
+        new TWEEN.Tween(card.position)
+          .to(
+            {
+              y: 0.05,
+              z: row * 4 - zOffset,
+              x: col * 3 - xOffset,
+            },
+            time
+          )
+          .easing(TWEEN.Easing.Cubic.Out)
+
+          .start();
+
+        new TWEEN.Tween(card.rotation)
+          .to(
+            {
+              y: Math.PI, //Math.PI / 2,
+              x: -Math.PI / 2,
+              z: 0,
+            },
+            time * 1.2
+          )
+          .easing(custom.ElasticOut)
+          .start();
+      });
+    }
+  }, [mode, scene]);
+
   const initialProps = useMemo(() => {
-    return Array(20)
+    return Array(CARD_COUNT)
       .fill(0)
       .map((_, i) => {
         const distance = fit(i, 4, 20);
@@ -90,18 +158,17 @@ function Cards() {
   return (
     <>
       {initialProps.map((props, i) => {
-        return <FallingCard key={i} {...props} />;
+        return <FallingCard name={"card" + i} key={i} {...props} />;
       })}
     </>
   );
 }
-
 export function Scene() {
+  useFrame((_, delta) => {
+    TWEEN.update();
+  });
   const spotLight = useRef<any>();
-  const pointLight = useRef<any>();
 
-  useHelper(spotLight, SpotLightHelper, "red");
-  useHelper(pointLight, PointLightHelper, 2, "blue");
   return (
     <>
       <ambientLight color={"#FFF"} castShadow={false} intensity={Math.PI / 2} />
@@ -115,10 +182,6 @@ export function Scene() {
         color={"#FFFFFF"}
         intensity={4}
       />
-
-      <group rotation={[0, Math.PI / 2 + 0.05, 0]}>
-        <Card />
-      </group>
 
       <Floor />
     </>
