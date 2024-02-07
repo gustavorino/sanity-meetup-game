@@ -2,13 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrbitControls, OrbitControlsProps } from "@react-three/drei";
 import { Canvas, GroupProps, useFrame, useThree } from "@react-three/fiber";
-import TWEEN from "@tweenjs/tween.js";
-import { useEffect, useMemo, useRef } from "react";
-import { Euler, Group } from "three";
+import TWEEN, { Easing, Interpolation } from "@tweenjs/tween.js";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { Euler, Group, Quaternion, Vector3 } from "three";
 import "./3dComponents/Card.tsx";
 import { Card } from "./3dComponents/Card.tsx";
 import { useGlobalState } from "./State.tsx";
-import { custom } from "./easings.ts";
 import "./utils.tsx";
 import { drand, fit } from "./utils.tsx";
 
@@ -22,18 +21,32 @@ const cardIds = Array(CARD_COUNT)
   .fill(0)
   .map((_, i) => `card${i}`);
 
+const xOffset = 3 * ((COLS - 2) / 2);
+const zOffset = 4;
+
+const deckPositions = cardIds.reduce((acc, next, i) => {
+  const row = Math.floor(i / (COLS - 1));
+  const col = i % (COLS - 1);
+
+  acc[next] = new Vector3(col * 3 - xOffset, 0.05, row * 4 - zOffset);
+  return acc;
+}, {} as Record<string, Vector3>);
+
+const deckRotation = new Euler(-Math.PI / 2, Math.PI, 0);
+const deckRotationOpened = new Euler(-Math.PI / 2, 0, 0);
+
 export function Stage() {
   const orbitControls = useRef<OrbitControlsProps>(null);
   const { mode } = useGlobalState();
   useEffect(() => {
-    if (mode === "stack" && orbitControls.current) {
+    if (mode === "cards" && orbitControls.current) {
       new TWEEN.Tween(orbitControls.current.target || {})
-        .to({ x: 0, y: 0, z: 2 }, 1500)
-        .easing(TWEEN.Easing.Quadratic.InOut)
+        .to({ x: 0, y: 0, z: 2 }, 2500)
+        .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start();
       new TWEEN.Tween(orbitControls.current.object!.position)
-        .to({ x: 0, y: 12, z: 12 }, 2000)
-        .easing(TWEEN.Easing.Cubic.InOut)
+        .to({ x: 0, y: 12, z: 12 }, 2500)
+        .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start();
     }
   });
@@ -55,7 +68,35 @@ export function Stage() {
 }
 
 function FallingCard(props: GroupProps) {
-  const { mode } = useGlobalState();
+  const { name } = props;
+  const { scene } = useThree();
+  const moveForward = useCardAnimationForward();
+  const moveBack = useCardAnimationBack();
+
+  const { currentCard, closeCard, openCard, mode } = useGlobalState();
+
+  const isCardSelected = currentCard === name;
+
+  useEffect(() => {
+    if (mode !== "cards") {
+      return;
+    }
+    if (isCardSelected) {
+      moveForward(scene.getObjectByName(name!));
+    } else {
+      moveBack(scene.getObjectByName(name!));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCardSelected, mode]);
+
+  const onCardClick = () => {
+    if (currentCard === name) {
+      closeCard();
+    } else {
+      openCard(name!);
+    }
+  };
+
   const consts = useMemo(() => {
     return {
       x: drand(-1, 1),
@@ -84,7 +125,7 @@ function FallingCard(props: GroupProps) {
   // }, [mode]);
 
   return (
-    <group {...props} ref={ref}>
+    <group onClick={onCardClick} {...props} ref={ref}>
       <Card />
     </group>
   );
@@ -92,46 +133,50 @@ function FallingCard(props: GroupProps) {
 
 function Cards() {
   const { mode } = useGlobalState();
-  const { scene, camera } = useThree();
+  const { scene } = useThree();
 
   useEffect(() => {
-    if (mode === "stack") {
-      const xOffset = 3 * ((COLS - 2) / 2);
-      const zOffset = 4;
-
-      cardIds.forEach((id, i) => {
+    if (mode === "cards") {
+      cardIds.forEach((id) => {
         const card = scene.getObjectByName(id)!;
-        const row = Math.floor(i / (COLS - 1));
-        const col = i % (COLS - 1);
 
-        card.rotation.x = card.rotation.x % (Math.PI * 2);
-        card.rotation.y = card.rotation.y % (Math.PI * 2);
-        card.rotation.z = card.rotation.z % (Math.PI * 2);
+        const time = 900 + card.position.y * 50;
+        const z = deckPositions[id].z;
+        const x = deckPositions[id].x;
 
-        const time = 1700 + i * 100;
         new TWEEN.Tween(card.position)
           .to(
             {
               y: 0.05,
-              z: row * 4 - zOffset,
-              x: col * 3 - xOffset,
+              z: [card.position.z, z * 5, z],
+              x: [card.position.x, x * 6, x],
             },
             time
           )
-          .easing(TWEEN.Easing.Cubic.Out)
+          .interpolation(Interpolation.Bezier)
+          .easing(Easing.Sinusoidal.Out)
 
           .start();
 
-        new TWEEN.Tween(card.rotation)
+        const qFrom = new Quaternion();
+        qFrom.setFromEuler(card.rotation);
+
+        const qTo = new Quaternion();
+        qTo.setFromEuler(deckRotation);
+
+        new TWEEN.Tween({ t: 0 })
           .to(
             {
-              y: Math.PI, //Math.PI / 2,
-              x: -Math.PI / 2,
-              z: 0,
+              t: 1,
             },
-            time * 1.2
+            time
           )
-          .easing(custom.ElasticOut)
+          .easing(Easing.Back.InOut)
+          .onUpdate(({ t }) => {
+            const qNew = new Quaternion();
+            qNew.slerpQuaternions(qFrom, qTo, t);
+            card.rotation.copy(new Euler().setFromQuaternion(qNew));
+          })
           .start();
       });
     }
@@ -148,7 +193,7 @@ function Cards() {
           rotation: [drand() * 3, drand() * 3, drand() * 3] as any,
           position: [
             Math.cos(angle) * distance,
-            INITIAL_Y + fit(i, -INITIAL_H_AREA, INITIAL_H_AREA),
+            INITIAL_Y + fit(drand(-10, 10), -INITIAL_H_AREA, INITIAL_H_AREA),
             Math.sin(angle) * distance,
           ] as any,
         };
@@ -167,13 +212,11 @@ export function Scene() {
   useFrame((_, delta) => {
     TWEEN.update();
   });
-  const spotLight = useRef<any>();
 
   return (
     <>
       <ambientLight color={"#FFF"} castShadow={false} intensity={Math.PI / 2} />
       <spotLight
-        ref={spotLight}
         castShadow={true}
         position={[0, 40, 0]}
         angle={0.3}
@@ -182,6 +225,8 @@ export function Scene() {
         color={"#FFFFFF"}
         intensity={4}
       />
+
+      <CardPlaceholder />
 
       <Floor />
     </>
@@ -201,28 +246,110 @@ function Floor() {
   );
 }
 
-// function Box(
-//   props: ThreeElements["mesh"] & { rotate: boolean; scale: number }
-// ) {
-//   const ref = useRef<THREE.Mesh>(null!);
-//   const [hovered, hover] = useState(false);
-//   useFrame((_, delta) => {
-//     if (props.rotate) {
-//       ref.current.rotation.z += delta;
-//     }
-//   });
-//   return (
-//     <mesh
-//       castShadow
-//       receiveShadow
-//       {...props}
-//       ref={ref}
-//       scale={props.scale}
-//       onPointerOver={(_) => hover(true)}
-//       onPointerOut={(_) => hover(false)}
-//     >
-//       <boxGeometry args={[2.5, 0.03, 3.5]} />
-//       <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-//     </mesh>
-//   );
-// }
+function CardPlaceholder() {
+  const { scene, camera } = useThree();
+  useFrame(() => {
+    const obj = scene.getObjectByName("placeholder")!;
+
+    const dist = 6;
+    const cwd = new Vector3();
+
+    camera.getWorldDirection(cwd);
+
+    cwd.multiplyScalar(dist);
+
+    cwd.add(camera.position);
+
+    obj.position.set(cwd.x, cwd.y, cwd.z);
+    obj.setRotationFromQuaternion(camera.quaternion);
+
+    obj.lookAt(camera.position);
+
+    const a = obj.localToWorld(new Vector3(0, 0, 0));
+    const b = obj.localToWorld(new Vector3(3.8, 0, 0));
+
+    obj.position.add(a.sub(b));
+  });
+  return <Card visible={false} name="placeholder"></Card>;
+}
+
+function useCardAnimationForward() {
+  const { scene } = useThree();
+  return useCallback(
+    (card: any) => {
+      const placeholder = scene.getObjectByName("placeholder")!;
+
+      new TWEEN.Tween(card.position)
+        .to(
+          {
+            ...placeholder.position,
+            y: [placeholder.position.y, placeholder.position.y],
+          },
+          500
+        )
+        .easing(Easing.Quadratic.InOut)
+        .interpolation(Interpolation.Bezier)
+        .start();
+
+      const qFrom = new Quaternion();
+      qFrom.setFromEuler(card.rotation);
+
+      const qTo = new Quaternion();
+      qTo.setFromEuler(placeholder.rotation);
+
+      new TWEEN.Tween({ t: 0 })
+        .to({ t: 1 }, 500)
+        .easing(Easing.Quadratic.InOut)
+        .onUpdate(({ t }) => {
+          const qNew = new Quaternion();
+          qNew.slerpQuaternions(qFrom, qTo, t);
+          card.rotation.copy(new Euler().setFromQuaternion(qNew));
+        })
+        .start();
+    },
+    [scene]
+  );
+}
+
+function useCardAnimationBack() {
+  const { openedMap } = useGlobalState();
+
+  return useCallback(
+    (card: any) => {
+      const wasOpened = openedMap[card.name];
+
+      new TWEEN.Tween(card.position)
+        .to(
+          {
+            ...deckPositions[card.name],
+            y: [
+              card.position.y,
+              card.position.y,
+              deckPositions[card.name].y + (wasOpened ? 0.2 : 0),
+            ],
+          },
+          500
+        )
+        .interpolation(Interpolation.Bezier)
+        .easing(Easing.Quadratic.InOut)
+        .start();
+
+      const qFrom = new Quaternion();
+      qFrom.setFromEuler(card.rotation);
+
+      const qTo = new Quaternion();
+      qTo.setFromEuler(wasOpened ? deckRotationOpened : deckRotation);
+
+      new TWEEN.Tween({ t: 0 })
+        .to({ t: 1 }, 500)
+        .easing(Easing.Quadratic.InOut)
+        .onUpdate(({ t }) => {
+          const qNew = new Quaternion();
+          qNew.slerpQuaternions(qFrom, qTo, t);
+          card.rotation.copy(new Euler().setFromQuaternion(qNew));
+        })
+        .start();
+    },
+    [openedMap]
+  );
+}

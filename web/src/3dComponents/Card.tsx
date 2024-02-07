@@ -86,6 +86,7 @@ export function Card(props: GroupProps) {
       <group {...props}>
         <Image
           castShadow
+          receiveShadow
           radius={0.222}
           side={THREE.BackSide}
           transparent
