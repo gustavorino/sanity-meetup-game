@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "@react-spring/three": "*",
-    "@tweenjs/tween.js": "^23.1.1",
+    "@react-spring/web": "^9.7.3",
     "@react-three/drei": "^9.97.0",
     "@react-three/fiber": "^8.15.16",
     "@react-three/postprocessing": "^2.15.13",
+    "@tweenjs/tween.js": "^23.1.1",
     "@types/three": "^0.161.2",
     "autoprefixer": "^10.4.17",
     "classnames": "^2.5.1",

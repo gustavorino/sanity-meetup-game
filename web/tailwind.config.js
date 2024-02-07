@@ -3,10 +3,10 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     fontFamily: {
-      sans: ["Poppins"],
+      sans: ["Lato", "sans-serif"],
     },
     colors: {
-      bg: "#999",
+      bg: "#bcbcbc",
       purple1: "#9F7FFF",
       purple2: "#8055FE",
       orange1: "#EA8247",

@@ -3,12 +3,12 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from "react";
 
 type ContextType = {
   mode: "home" | "cards";
+  beginPresentation(): void;
   currentCard?: string;
   openedMap: Record<string, boolean>;
   openCard(name: string): void;
@@ -17,6 +17,7 @@ type ContextType = {
 
 const StateContext = createContext<ContextType>({
   openCard() {},
+  beginPresentation() {},
   closeCard() {},
   openedMap: {},
   mode: "home",
@@ -27,10 +28,8 @@ export function StateProvider({ children }: PropsWithChildren) {
   const [currentCard, setCurrentCard] = useState<string>();
   const [openedMap, setOpenedMap] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setTimeout(() => {
-      setMode("cards");
-    }, 400);
+  const beginPresentation = useCallback(() => {
+    setMode("cards");
   }, []);
 
   const openCard = useCallback(
@@ -50,16 +49,15 @@ export function StateProvider({ children }: PropsWithChildren) {
 
   return (
     <StateContext.Provider
-      value={{ mode, openCard, closeCard, openedMap, currentCard }}
+      value={{
+        beginPresentation,
+        mode,
+        openCard,
+        closeCard,
+        openedMap,
+        currentCard,
+      }}
     >
-      {JSON.stringify({ mode, currentCard })}
-      <button
-        onClick={() => {
-          setMode("cards");
-        }}
-      >
-        Go to Cards
-      </button>
       {children}
     </StateContext.Provider>
   );

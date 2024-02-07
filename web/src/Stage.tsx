@@ -8,13 +8,15 @@ import { Euler, Group, Quaternion, Vector3 } from "three";
 import "./3dComponents/Card.tsx";
 import { Card } from "./3dComponents/Card.tsx";
 import { useGlobalState } from "./State.tsx";
+import { Floor } from "./components/Floor.tsx";
+import { PPEffecs } from "./components/PPEffects.tsx";
 import "./utils.tsx";
 import { drand, fit } from "./utils.tsx";
 
 const CARD_COUNT = 18;
 const INITIAL_Y = 30;
-const INITIAL_H_AREA = 12;
-const SLOW_MO = 1.1;
+const INITIAL_H_AREA = 20;
+const FALL_SPEED = 1.1;
 const COLS = 7;
 
 const cardIds = Array(CARD_COUNT)
@@ -61,7 +63,15 @@ export function Stage() {
       shadows
     >
       <Scene />
-      <OrbitControls ref={orbitControls as any} target={[0, INITIAL_Y, 0]} />
+      <OrbitControls
+        zoomToCursor={false}
+        enablePan={false}
+        enableRotate={false}
+        enableZoom={false}
+        enableDamping={false}
+        ref={orbitControls as any}
+        target={[0, INITIAL_Y, 0]}
+      />
       <Cards />
     </Canvas>
   );
@@ -112,10 +122,10 @@ function FallingCard(props: GroupProps) {
         ref.current.position.y += INITIAL_H_AREA * 2;
       }
 
-      ref.current.position.y -= delta * 10 * SLOW_MO;
-      ref.current.rotation.x += consts.x * delta * SLOW_MO;
-      ref.current.rotation.y += consts.y * delta * SLOW_MO;
-      ref.current.rotation.z += consts.z * delta * SLOW_MO;
+      ref.current.position.y -= delta * 10 * FALL_SPEED;
+      ref.current.rotation.x += consts.x * delta * FALL_SPEED;
+      ref.current.rotation.y += consts.y * delta * FALL_SPEED;
+      ref.current.rotation.z += consts.z * delta * FALL_SPEED;
     }
   });
 
@@ -193,7 +203,12 @@ function Cards() {
           rotation: [drand() * 3, drand() * 3, drand() * 3] as any,
           position: [
             Math.cos(angle) * distance,
-            INITIAL_Y + fit(drand(-10, 10), -INITIAL_H_AREA, INITIAL_H_AREA),
+            INITIAL_Y +
+              fit(
+                drand(-INITIAL_H_AREA, INITIAL_H_AREA),
+                -INITIAL_H_AREA,
+                INITIAL_H_AREA
+              ),
             Math.sin(angle) * distance,
           ] as any,
         };
@@ -208,13 +223,15 @@ function Cards() {
     </>
   );
 }
+
 export function Scene() {
-  useFrame((_, delta) => {
+  useFrame(() => {
     TWEEN.update();
   });
 
   return (
     <>
+      <PPEffecs />
       <ambientLight color={"#FFF"} castShadow={false} intensity={Math.PI / 2} />
       <spotLight
         castShadow={true}
@@ -230,19 +247,6 @@ export function Scene() {
 
       <Floor />
     </>
-  );
-}
-
-function Floor() {
-  return (
-    <mesh
-      castShadow={false}
-      rotation={new Euler(-Math.PI / 2, 0, 0)}
-      receiveShadow
-    >
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color={"#FFF"} />
-    </mesh>
   );
 }
 
@@ -269,6 +273,8 @@ function CardPlaceholder() {
     const b = obj.localToWorld(new Vector3(3.8, 0, 0));
 
     obj.position.add(a.sub(b));
+
+    console.log(obj.position.clone().project(camera));
   });
   return <Card visible={false} name="placeholder"></Card>;
 }
