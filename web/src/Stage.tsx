@@ -270,11 +270,9 @@ function CardPlaceholder() {
     obj.lookAt(camera.position);
 
     const a = obj.localToWorld(new Vector3(0, 0, 0));
-    const b = obj.localToWorld(new Vector3(3.8, 0, 0));
+    const b = obj.localToWorld(new Vector3(3, 0, 0));
 
     obj.position.add(a.sub(b));
-
-    console.log(obj.position.clone().project(camera));
   });
   return <Card visible={false} name="placeholder"></Card>;
 }

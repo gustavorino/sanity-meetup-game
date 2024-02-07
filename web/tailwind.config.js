@@ -2,18 +2,23 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
+    extend: {
+      boxShadow: {
+        content: "0 0px 10vw 0px rgba(0, 0, 0,  0.55)",
+        question: "0 0px 1vw 0px rgba(0, 0, 0,  0.3)",
+      },
+    },
     fontFamily: {
       sans: ["Lato", "sans-serif"],
     },
     colors: {
       bg: "#bcbcbc",
-      purple1: "#9F7FFF",
-      purple2: "#8055FE",
-      orange1: "#EA8247",
       white: "#FFF",
       black: "#000",
-      red: "#A00",
-      blue1: "#10CCCC",
+      mauve: "#B99095",
+      salmon: "#FCB5AC",
+      mint: "#B5E5CF",
+      tealGreen: "#3D5B59",
     },
   },
   plugins: [],

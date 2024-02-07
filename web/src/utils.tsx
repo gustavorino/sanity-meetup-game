@@ -7,7 +7,6 @@ import * as THREE from "three";
 // https://discourse.threejs.org/t/simple-curved-plane/26647/10
 class BentPlaneGeometry extends THREE.PlaneGeometry {
   constructor(radius: any, ...args: any) {
-    console.log({ radius });
     super(...args);
     const p = this.parameters;
     const hw = p.width * 0.5;
