@@ -20,6 +20,7 @@ export default defineType({
       name: 'primarySpeaker',
       title: 'Primary Speaker',
       type: 'string',
+      hidden: ({document}) => document?.realTimeQuestion === true,
       options: {
         list: ['Gustavo', 'Ryan', 'Both'],
       },
@@ -35,6 +36,7 @@ export default defineType({
       name: 'body',
       title: 'Body',
       type: 'blockContent',
+      hidden: ({document}) => document?.realTimeQuestion === true,
     }),
   ],
 })
