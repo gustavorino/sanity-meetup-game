@@ -45,11 +45,11 @@ export function Stage() {
   useEffect(() => {
     if (mode === "cards" && orbitControls.current) {
       new TWEEN.Tween(orbitControls.current.target || {})
-        .to({ x: 0, y: 0, z: 2 }, 2500)
+        .to({ x: 0, y: 0, z: 2 }, 4500)
         .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start();
       new TWEEN.Tween(orbitControls.current.object!.position)
-        .to({ x: 0, y: 12, z: 12 }, 2500)
+        .to({ x: 0, y: 12, z: 12 }, 4500)
         .easing(TWEEN.Easing.Sinusoidal.InOut)
         .start();
     }
@@ -154,7 +154,7 @@ function Cards() {
       cardNames.forEach((name, id) => {
         const card = scene.getObjectByName(name)!;
 
-        const time = 1000 + card.position.y * 50;
+        const time = 2000 + card.position.y * 50;
         const z = deckPositions[id].z;
         const x = deckPositions[id].x;
         const y = deckPositions[id].y;
@@ -163,8 +163,8 @@ function Cards() {
           .to(
             {
               y: y,
-              z: [card.position.z, z * 5, z],
-              x: [card.position.x, x * 6, x],
+              z: [card.position.z, Math.sin(id) * 10, z * 5, z],
+              x: [card.position.x, Math.cos(id) * 10, x * 6, x],
             },
             time
           )

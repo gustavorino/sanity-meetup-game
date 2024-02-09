@@ -1,3 +1,4 @@
+import { PortableText } from "@portabletext/react";
 import { animated, useSpring } from "@react-spring/web";
 import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
@@ -59,7 +60,7 @@ export function ContentCard() {
         style={{ ...springs }}
         className="rounded-[2vw]  absolute top-[8.25vw] h-[40vw] shadow-content left-[35vw] w-[54vw] p-[2vw]  bg-white "
       >
-        Content goes here...
+        <PortableText components={{}} value={content} />
       </animated.div>
     </>
   );

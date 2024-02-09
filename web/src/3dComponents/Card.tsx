@@ -82,7 +82,7 @@ export function Card(props: GroupProps & { card: SanityCard }) {
   const { load } = useCardBack();
 
   const params = useMemo(() => {
-    return { curveZ: drand(0, 0.1), curveY: drand(-0.1, 0) };
+    return { curveZ: drand(0, 0.09), curveY: drand(-0.09, 0) };
   }, []);
 
   const [img, setImg] = useState<string | null>(null);
@@ -100,7 +100,6 @@ export function Card(props: GroupProps & { card: SanityCard }) {
       <group {...props}>
         <Image
           castShadow
-          receiveShadow
           radius={0.222}
           side={THREE.BackSide}
           transparent

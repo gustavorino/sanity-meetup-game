@@ -13,6 +13,7 @@ export function Intro() {
 
   useEffect(() => {
     spring.start(mode === "home" ? 0 : 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   const avatarTop = spring.to([0, 1], ["12vw", "4vw"]);
@@ -44,7 +45,12 @@ export function Intro() {
           brand={<Pro3200Logo className="text-[2.4rem] mx-auto" />}
         />
       </animated.div>
-      <animated.div style={{ opacity: spring.to([0, 1], [1, 0]) }}>
+      <animated.div
+        style={{
+          scale: spring.to([0, 1], [1, 0]),
+          opacity: spring.to([0, 1], [1, 0]),
+        }}
+      >
         <DevDeepDive />
       </animated.div>
     </FullWrap>
