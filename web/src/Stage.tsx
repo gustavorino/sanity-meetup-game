@@ -96,7 +96,7 @@ function FallingCard(props: GroupProps & { id: number }) {
       return;
     }
     if (isCardSelected) {
-      moveForward(scene.getObjectByName(name!), id);
+      moveForward(scene.getObjectByName(name!));
     } else {
       moveBack(scene.getObjectByName(name!), id);
     }
@@ -288,7 +288,7 @@ function CardPlaceholder() {
 function useCardAnimationForward() {
   const { scene } = useThree();
   return useCallback(
-    (card: any, id: number) => {
+    (card: any) => {
       const placeholder = scene.getObjectByName("placeholder")!;
 
       new TWEEN.Tween(card.position)
