@@ -26,11 +26,18 @@ export function InnerCardBackface({
     >
       <div className="p-[60px] h-full  ">
         <div
-          className={twJoin(
-            " flex flex-col  leading-normal border-black border-[20px] bg-white border-solid rounded-[94px]  font-black h-full  py-[40px] px-[60px] space-y-8"
-          )}
+          className={
+            " flex flex-col overflow-hidden  leading-normal border-black border-[20px] bg-white border-solid rounded-[94px]  font-black h-full  py-[40px] px-[60px] space-y-8"
+          }
         >
-          <div className="text-[100px] text-black flex-1">{topic}</div>
+          <div
+            className={twJoin(
+              " text-black flex-1",
+              topic.length > 100 ? "text-[72px]" : "text-[90px]"
+            )}
+          >
+            {topic}
+          </div>
 
           {userName && (
             <div className="text-[50px] text-[#555] text-right">{userName}</div>

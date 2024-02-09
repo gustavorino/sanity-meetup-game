@@ -9,6 +9,7 @@ export default defineType({
       name: 'topic',
       title: 'Topic',
       type: 'string',
+      validation: (v) => v.max(150),
     }),
     defineField({
       name: 'realTimeQuestion',
@@ -30,6 +31,7 @@ export default defineType({
       name: 'userName',
       title: 'User Name',
       type: 'string',
+      validation: (v) => v.max(34),
       hidden: ({document}) => !document?.realTimeQuestion,
     }),
     defineField({
