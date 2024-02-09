@@ -1,4 +1,5 @@
-import { animated, useSpring } from "@react-spring/web";
+import { SpringValue, animated, useSpringValue } from "@react-spring/web";
+import { ReactNode, useEffect } from "react";
 import { twJoin } from "tailwind-merge";
 import { useGlobalState } from "../State.tsx";
 import { BaseLogo } from "../icons/BaseLogo.tsx";
@@ -6,65 +7,121 @@ import { Pro3200Logo } from "../icons/Pro3200Logo.tsx";
 import { FullWrap } from "./FullWrap.tsx";
 
 export function Intro() {
-  const state = useGlobalState();
+  const { mode } = useGlobalState();
 
-  const springs = useSpring({
-    from: { y: 0, opacity: 1 },
-    to: {
-      y: state.mode == "cards" ? -0 : 0,
-      opacity: state.mode == "cards" ? 0 : 1,
-    },
-  });
+  const spring = useSpringValue(0, { config: { friction: 40 } });
+
+  useEffect(() => {
+    spring.start(mode === "home" ? 0 : 1);
+  }, [mode]);
+
+  const avatarTop = spring.to([0, 1], ["12vw", "4vw"]);
+  const avatarLeft = spring.to([0, 1], ["8vw", "0vw"]);
 
   return (
-    <FullWrap className="flex items-center justify-center flex-col text-lg lg:text-5xl ">
+    <FullWrap>
       <animated.div
-        style={{ ...springs }}
-        className={"space-y-2 text-center p-8 rounded-xl w-full px-20 "}
+        style={{ left: avatarLeft, top: avatarTop }}
+        className="absolute"
       >
-        <div className="items-center justify-center flex">
-          <div className="flex-col items-center justify-center space-y-4 hidden lg:flex">
-            <img
-              src="/gustavo.png"
-              className="size-40 xl:size-80 rounded-full object-cover"
-            />
-            <div className="h-40 space-y-4">
-              <div className="text-lg font-light">
-                Head of Software Engineering
-              </div>
-
-              <BaseLogo className="text-[4rem] mx-auto" />
-            </div>
-          </div>
-          <div className="flex-1 space-y-4">
-            <div className="font-bold">Developer Deep Dive</div>
-            <div className="font-extralight text-[0.8em] max-w-[40rem] mx-auto">
-              How Sanity Unifies Developer Benefits With Client Needs
-            </div>
-
-            <div className="h-5 lg:h-20"></div>
-            <button
-              onClick={state.beginPresentation}
-              className={twJoin(
-                "font-black text-lg rounded-lg   px-4 py-2 border-4 border-black",
-                state.mode === "home" && "pointer-events-auto"
-              )}
-            >
-              LET'S BEGIN
-            </button>
-          </div>
-          <div className="flex-col items-center justify-center space-y-4 hidden lg:flex">
-            <img
-              src="/ryan.jpg"
-              className="size-40 xl:size-80 rounded-full object-cover"
-            />
-            <div className="h-40 space-y-4">
-              <div className="text-lg font-light">Founder</div>
-              <Pro3200Logo className="text-[2.5rem] mx-auto" />
-            </div>
-          </div>
-        </div>
+        <Avatar
+          spring={spring}
+          name="Gustavo Bremm"
+          title="Head of Software Engineering"
+          photo="/gustavo.png"
+          brand={<BaseLogo className="text-[4vw] mx-auto" />}
+        />
+      </animated.div>
+      <animated.div
+        style={{ right: avatarLeft, top: avatarTop }}
+        className="absolute"
+      >
+        <Avatar
+          spring={spring}
+          name="Ryan Murray"
+          title="Founder"
+          photo="/ryan.jpg"
+          brand={<Pro3200Logo className="text-[2.4rem] mx-auto" />}
+        />
+      </animated.div>
+      <animated.div style={{ opacity: spring.to([0, 1], [1, 0]) }}>
+        <DevDeepDive />
       </animated.div>
     </FullWrap>
+  );
+}
+
+function DevDeepDive() {
+  const state = useGlobalState();
+
+  return (
+    <div className="absolute w-[50vw] left-[25vw] top-[18vw] text-[3vw] text-center">
+      <div className="font-bold">Developer Deep Dive</div>
+      <div className="font-extralight text-[0.8em] max-w-[40vw] mx-auto">
+        How Sanity Unifies Developer Benefits With Client Needs
+      </div>
+
+      <div className="h-[5vw]"></div>
+      <button
+        onClick={state.beginPresentation}
+        className={twJoin(
+          "font-black text-[1vw] bg-white p-[0.25vw] rounded-[1vw]  ",
+          state.mode === "home" && "pointer-events-auto"
+        )}
+      >
+        <div className="px-[1vw] py-[0.5vw] border-[0.25vw] bg-mint border-dark rounded-[1vw]">
+          LET'S BEGIN
+        </div>
+      </button>
+    </div>
+  );
+}
+
+function Avatar({
+  name,
+  title,
+  photo,
+  brand,
+  spring,
+}: {
+  name: string;
+  title: string;
+  photo: string;
+  brand: ReactNode;
+  spring: SpringValue<number>;
+}) {
+  return (
+    <div className="items-center justify-center flex">
+      <animated.div
+        style={{ width: spring.to([0, 1], ["15vw", "10vw"]) }}
+        className="flex-col  items-center justify-center flex"
+      >
+        <animated.img
+          style={{ width: spring.to([0, 1], ["15vw", "4vw"]) }}
+          src={photo}
+          className="aspect-square rounded-full object-cover border-[0.25vw]"
+        />
+        <div className=" text-center">
+          <animated.div
+            className="py-[0.1em]"
+            style={{ fontSize: spring.to([0, 1], ["1.25vw", "1vw"]) }}
+          >
+            {name}
+          </animated.div>
+          <animated.div
+            style={{
+              height: spring.to([0, 1], ["8vw", "0vw"]),
+            }}
+            className="overflow-hidden"
+          >
+            <div className="py-[0.1em] text-[1vw] font-light text-dark/80">
+              {title}
+            </div>
+
+            <div className="pt-[1vw]">{brand}</div>
+          </animated.div>
+        </div>
+      </animated.div>
+    </div>
   );
 }
