@@ -15,6 +15,7 @@ export default {
       bg: "#bcbcbc",
       white: "#FFF",
       black: "#000",
+      dark: "#313233",
       mauve: "#B99095",
       salmon: "#FCB5AC",
       mint: "#B5E5CF",

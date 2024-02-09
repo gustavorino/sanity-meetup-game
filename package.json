@@ -6,8 +6,7 @@
   },
   "workspaces": [
     "studio",
-    "web",
-    "lambda"
+    "web"
   ],
   "devDependencies": {
     "turbo": "^1.12.2"

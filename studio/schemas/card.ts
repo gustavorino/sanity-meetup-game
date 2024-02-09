@@ -12,7 +12,7 @@ export default defineType({
     }),
     defineField({
       name: 'realTimeQuestion',
-      title: 'Real Time Question',
+      title: 'Is community question?',
       type: 'boolean',
     }),
     // create a string with options Gustavo and Ryan. This is primary speaker for topic

@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { Image } from "@react-three/drei";
 import { GroupProps, ReactThreeFiber, extend } from "@react-three/fiber";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
+import { useCardBack } from "../providers/CardBackProvider.tsx";
+import { SanityCard } from "../sanity.ts";
 import { drand } from "../utils.tsx";
 
 //taken from https://codesandbox.io/p/sandbox/cards-with-border-radius-9s2wd9?file=%2Fsrc%2Futil.js%3A1%2C1-55%2C1
@@ -76,10 +78,22 @@ class CardGeometry extends THREE.PlaneGeometry {
 
 extend({ CardGeometry });
 
-export function Card(props: GroupProps) {
+export function Card(props: GroupProps & { card: SanityCard }) {
+  const { load } = useCardBack();
+
   const params = useMemo(() => {
     return { curveZ: drand(0, 0.1), curveY: drand(-0.1, 0) };
   }, []);
+
+  const [img, setImg] = useState<string | null>(null);
+
+  const { card } = props;
+
+  useEffect(() => {
+    if (card) {
+      load(card).then(setImg);
+    }
+  }, [card, load]);
 
   return (
     <>
@@ -90,7 +104,12 @@ export function Card(props: GroupProps) {
           radius={0.222}
           side={THREE.BackSide}
           transparent
-          url="/back.png"
+          color={card ? "#FFF" : "#AAA"}
+          url={
+            !card || card?.realTimeQuestion
+              ? "/back-community.png"
+              : "/back.png"
+          }
         >
           <cardGeometry {...params}></cardGeometry>
         </Image>
@@ -100,7 +119,7 @@ export function Card(props: GroupProps) {
           radius={0.222}
           side={THREE.FrontSide}
           transparent
-          url="http://localhost:3000/screenshot"
+          url={img || "/back.png"}
         >
           <cardGeometry {...params}></cardGeometry>
         </Image>

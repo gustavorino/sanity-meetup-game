@@ -10,29 +10,31 @@ import { Card } from "./3dComponents/Card.tsx";
 import { useGlobalState } from "./State.tsx";
 import { Floor } from "./components/Floor.tsx";
 import { PPEffecs } from "./components/PPEffects.tsx";
+import {
+  CARD_COUNT,
+  COLS,
+  FALL_SPEED,
+  INITIAL_H_AREA,
+  INITIAL_Y,
+} from "./consts.ts";
+import { SanityCard } from "./sanity.ts";
 import "./utils.tsx";
 import { drand, fit } from "./utils.tsx";
 
-const CARD_COUNT = 18;
-const INITIAL_Y = 30;
-const INITIAL_H_AREA = 20;
-const FALL_SPEED = 1.1;
-const COLS = 7;
-
-const cardIds = Array(CARD_COUNT)
+const cardNames = Array(CARD_COUNT)
   .fill(0)
   .map((_, i) => `card${i}`);
 
 const xOffset = 3 * ((COLS - 2) / 2);
 const zOffset = 4;
 
-const deckPositions = cardIds.reduce((acc, next, i) => {
+const deckPositions = cardNames.reduce((acc, _, i) => {
   const row = Math.floor(i / (COLS - 1));
   const col = i % (COLS - 1);
 
-  acc[next] = new Vector3(col * 3 - xOffset, 0.05, row * 4 - zOffset);
+  acc[i] = new Vector3(col * 3 - xOffset, 0.075, row * 4 - zOffset);
   return acc;
-}, {} as Record<string, Vector3>);
+}, {} as Record<number, Vector3>);
 
 const deckRotation = new Euler(-Math.PI / 2, Math.PI, 0);
 const deckRotationOpened = new Euler(-Math.PI / 2, 0, 0);
@@ -77,35 +79,37 @@ export function Stage() {
   );
 }
 
-function FallingCard(props: GroupProps) {
-  const { name } = props;
+function FallingCard(props: GroupProps & { id: number }) {
+  const { name, id, ...rest } = props;
   const { scene } = useThree();
   const moveForward = useCardAnimationForward();
   const moveBack = useCardAnimationBack();
 
-  const { currentCard, closeCard, openCard, mode } = useGlobalState();
+  const { currentCard, closeCard, openCard, mode, cards } = useGlobalState();
 
-  const isCardSelected = currentCard === name;
+  const card = cards[id];
+
+  const isCardSelected = currentCard === id;
 
   useEffect(() => {
     if (mode !== "cards") {
       return;
     }
     if (isCardSelected) {
-      moveForward(scene.getObjectByName(name!));
+      moveForward(scene.getObjectByName(name!), id);
     } else {
-      moveBack(scene.getObjectByName(name!));
+      moveBack(scene.getObjectByName(name!), id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCardSelected, mode]);
 
-  const onCardClick = () => {
-    if (currentCard === name) {
+  const onCardClick = useCallback(() => {
+    if (currentCard !== undefined) {
       closeCard();
     } else {
-      openCard(name!);
+      card && openCard(id);
     }
-  };
+  }, [currentCard, closeCard, card, openCard, id]);
 
   const consts = useMemo(() => {
     return {
@@ -135,8 +139,8 @@ function FallingCard(props: GroupProps) {
   // }, [mode]);
 
   return (
-    <group onClick={onCardClick} {...props} ref={ref}>
-      <Card />
+    <group onClick={onCardClick} name={name} {...rest} ref={ref}>
+      <Card card={card} />
     </group>
   );
 }
@@ -147,17 +151,18 @@ function Cards() {
 
   useEffect(() => {
     if (mode === "cards") {
-      cardIds.forEach((id) => {
-        const card = scene.getObjectByName(id)!;
+      cardNames.forEach((name, id) => {
+        const card = scene.getObjectByName(name)!;
 
-        const time = 900 + card.position.y * 50;
+        const time = 1000 + card.position.y * 50;
         const z = deckPositions[id].z;
         const x = deckPositions[id].x;
+        const y = deckPositions[id].y;
 
         new TWEEN.Tween(card.position)
           .to(
             {
-              y: 0.05,
+              y: y,
               z: [card.position.z, z * 5, z],
               x: [card.position.x, x * 6, x],
             },
@@ -218,7 +223,7 @@ function Cards() {
   return (
     <>
       {initialProps.map((props, i) => {
-        return <FallingCard name={"card" + i} key={i} {...props} />;
+        return <FallingCard id={i} name={"card" + i} key={i} {...props} />;
       })}
     </>
   );
@@ -250,6 +255,7 @@ export function Scene() {
   );
 }
 
+const placeHolderCard: SanityCard = { _id: "placeholder", body: [], topic: "" };
 function CardPlaceholder() {
   const { scene, camera } = useThree();
   useFrame(() => {
@@ -274,13 +280,15 @@ function CardPlaceholder() {
 
     obj.position.add(a.sub(b));
   });
-  return <Card visible={false} name="placeholder"></Card>;
+  return (
+    <Card card={placeHolderCard} visible={false} name="placeholder"></Card>
+  );
 }
 
 function useCardAnimationForward() {
   const { scene } = useThree();
   return useCallback(
-    (card: any) => {
+    (card: any, id: number) => {
       const placeholder = scene.getObjectByName("placeholder")!;
 
       new TWEEN.Tween(card.position)
@@ -319,17 +327,17 @@ function useCardAnimationBack() {
   const { openedMap } = useGlobalState();
 
   return useCallback(
-    (card: any) => {
-      const wasOpened = openedMap[card.name];
+    (card: any, id: number) => {
+      const wasOpened = openedMap[id];
 
       new TWEEN.Tween(card.position)
         .to(
           {
-            ...deckPositions[card.name],
+            ...deckPositions[id],
             y: [
               card.position.y,
               card.position.y,
-              deckPositions[card.name].y + (wasOpened ? 0.2 : 0),
+              deckPositions[id].y + (wasOpened ? 0.2 : 0),
             ],
           },
           500
