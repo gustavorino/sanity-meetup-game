@@ -98,10 +98,13 @@ export function useGlobalState() {
 }
 
 function mergeCards(newCard: SanityCard, state: SanityCard[]) {
+  if (!newCard) {
+    return state;
+  }
   if (!state.find((card) => card._id == newCard._id)) {
     return [...state, newCard];
   }
-  console.log("reducing");
+
   return state.reduce((acc, next) => {
     if (next._id == newCard._id) {
       acc.push(newCard);

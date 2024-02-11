@@ -41,4 +41,17 @@ export default defineType({
       hidden: ({document}) => document?.realTimeQuestion === true,
     }),
   ],
+  preview: {
+    select: {
+      topic: 'topic',
+      realTimeQuestion: 'realTimeQuestion',
+      primarySpeaker: 'primarySpeaker',
+    },
+    prepare({realTimeQuestion, topic, primarySpeaker}) {
+      return {
+        title: topic,
+        subtitle: realTimeQuestion ? 'Community question' : primarySpeaker,
+      }
+    },
+  },
 })

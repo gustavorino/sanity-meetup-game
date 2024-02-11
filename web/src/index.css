@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
 
 @tailwind base;
 /* This fixes a bug with tailwind and html2canvas */
@@ -10,12 +10,48 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-body{
-  @apply w-screen h-screen bg-bg
+body {
+  @apply w-screen h-screen bg-bg;
 }
 
-#root { 
-  @apply h-full
+#root {
+  @apply h-full;
+}
+
+.portable-text {
+  font-size: 1.25vw;
+  @apply text-dark;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 300;
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+  
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+  h2 {
+    font-size: 1.75em;
+  }
+  h3 {
+    font-size: 1.5em;
+  }
+  h4 {
+    font-size: 1.25em;
+  }
+
+  ul,ol {
+    list-style: initial;
+    margin: initial;
+    padding-left: 2em;
+    margin:1em 0;
+  }
+}
+
+.portable-text {
 }

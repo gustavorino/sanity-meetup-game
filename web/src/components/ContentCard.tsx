@@ -3,6 +3,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { useGlobalState } from "../State.tsx";
+import { imageBuilder } from "../sanity.ts";
 
 export function ContentCard() {
   const { currentCard, cards } = useGlobalState();
@@ -58,10 +59,39 @@ export function ContentCard() {
 
       <animated.div
         style={{ ...springs }}
-        className="rounded-[2vw]  absolute top-[8.25vw] h-[40vw] shadow-content left-[35vw] w-[54vw] p-[2vw]  bg-white "
+        className="portable-text overflow-auto rounded-[2vw] pointer-events-auto  absolute top-[8.25vw] h-[40vw] shadow-content left-[35vw] w-[54vw] p-[2vw]  bg-white "
       >
-        <PortableText components={{}} value={content} />
+        <PortableText
+          components={{
+            types: {
+              figure: Figure,
+            },
+          }}
+          value={content}
+        />
       </animated.div>
     </>
+  );
+}
+
+function Figure({
+  value: {
+    img: { asset },
+  },
+}: {
+  value: { img: { asset: { assetId: string; mimeType: string } } };
+}) {
+  return (
+    <div className="my-[1vw]">
+      <img
+        className="w-full h-auto"
+        src={imageBuilder
+          .image(asset)
+          .width(1920)
+          .fit("max")
+          .format(asset.mimeType === "image/gif" ? (undefined as any) : "webp")
+          .url()}
+      />
+    </div>
   );
 }

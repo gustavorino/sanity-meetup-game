@@ -8,7 +8,19 @@ export const client = createClient({
   apiVersion: "2024-01-01",
 });
 
-const query = `*[_type=="card"][0..30] | order(_createdAt asc)`;
+import imageUrlBuilder from "@sanity/image-url";
+
+export const imageBuilder = imageUrlBuilder(client);
+
+const query = `*[_type=="card"]{
+  ...,
+  body[]{
+    ...,
+    img {
+      asset->
+    }
+  }
+}[0..30] | order(_createdAt asc)`;
 
 export function loadCards() {
   return client.fetch<SanityCard[]>(query);
