@@ -65,12 +65,21 @@ export function ContentCard() {
           components={{
             types: {
               figure: Figure,
+              video: Video,
             },
           }}
           value={content}
         />
       </animated.div>
     </>
+  );
+}
+
+function Video({ value }: { value: { asset: { url: string } } }) {
+  return (
+    <div className="my-[1vw]">
+      <video controls src={value.asset.url} />
+    </div>
   );
 }
 

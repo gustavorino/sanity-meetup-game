@@ -44,8 +44,6 @@ export function StateProvider({ children }: PropsWithChildren) {
   const cards$ = useObservable(() =>
     listenCards().pipe(
       tap((event) => {
-        console.log(event);
-
         setCards((cards) => mergeCards(event.result!, cards));
       })
     )
@@ -107,7 +105,8 @@ function mergeCards(newCard: SanityCard, state: SanityCard[]) {
 
   return state.reduce((acc, next) => {
     if (next._id == newCard._id) {
-      acc.push(newCard);
+      // body has references so we can't rely on the realtime data
+      acc.push({ ...newCard, body: next.body });
     } else {
       acc.push(next);
     }

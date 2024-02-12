@@ -18,7 +18,8 @@ const query = `*[_type=="card"]{
     ...,
     img {
       asset->
-    }
+    },
+    asset->
   }
 }[0..30] | order(_createdAt asc)`;
 

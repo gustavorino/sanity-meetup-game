@@ -61,5 +61,10 @@ export default defineType({
       type: 'figure',
       title: 'Figure',
     }),
+    defineField({
+      name: 'video',
+      type: 'file',
+      title: 'Video',
+    }),
   ],
 })
