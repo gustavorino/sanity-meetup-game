@@ -2,7 +2,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev"
+    "dev": "turbo run dev",
+    "prod": "turbo run prod --force"
   },
   "workspaces": [
     "studio",
