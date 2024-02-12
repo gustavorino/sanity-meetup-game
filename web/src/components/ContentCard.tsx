@@ -78,7 +78,7 @@ export function ContentCard() {
 function Video({ value }: { value: { asset: { url: string } } }) {
   return (
     <div className="my-[1vw]">
-      <video controls src={value.asset.url} />
+      <video muted controls src={value.asset.url} />
     </div>
   );
 }

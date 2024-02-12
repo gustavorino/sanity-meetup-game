@@ -21,7 +21,7 @@ const query = `*[_type=="card"]{
     },
     asset->
   }
-}[0..30] | order(_createdAt asc)`;
+}[0..17] | order(order asc,_createdAt asc)`;
 
 export function loadCards() {
   return client.fetch<SanityCard[]>(query);

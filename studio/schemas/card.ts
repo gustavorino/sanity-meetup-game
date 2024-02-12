@@ -28,6 +28,15 @@ export default defineType({
     }),
 
     defineField({
+      name: 'order',
+      title: 'Order',
+      description: 'Ascending, leave it empty to use creation date',
+      type: 'number',
+
+      hidden: ({document}) => !!document?.realTimeQuestion,
+    }),
+
+    defineField({
       name: 'userName',
       title: 'User Name',
       type: 'string',
