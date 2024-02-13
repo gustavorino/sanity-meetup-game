@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "prod": "turbo run prod --force"
+    "prod": "turbo run prod --force",
+    "build": "turbo run build --force"
   },
   "workspaces": [
     "studio",
