@@ -1,8 +1,12 @@
 # sanity-meetup-card
 
-This project was made the for the [Sanity developer deep dive](https://www.sanity.io/developer-deep-dive) meetup presentation.
+![Presentation](./docs/screenshot.png)
 
-https://sanity-meetup-cards.netlify.app/
+This project was made in a few hours for the [Sanity developer deep dive](https://www.sanity.io/developer-deep-dive) meetup presentation.
+
+Demo : https://sanity-meetup-cards.netlify.app/
+
+Presentation : https://www.youtube.com/watch?v=KYXkk4HIvzE
 
 Presented by
 

@@ -5,6 +5,7 @@ import { useGlobalState } from "../State.tsx";
 import { BaseLogo } from "../icons/BaseLogo.tsx";
 import { Pro3200Logo } from "../icons/Pro3200Logo.tsx";
 import { FullWrap } from "./FullWrap.tsx";
+import { GithubIcon, YoutubeIcon } from "./Icons.tsx";
 
 export function Intro() {
   const { mode } = useGlobalState();
@@ -79,6 +80,23 @@ function DevDeepDive() {
           LET'S BEGIN
         </div>
       </button>
+      <div className="text-xs  mt-4 flex gap-4 items-center justify-center">
+        <a
+          className="pointer-events-auto inline-flex gap-1 items-center justify-center "
+          href="https://github.com/gustavorino/sanity-meetup-game"
+          target="_blank"
+        >
+          <span>Source Code</span> <GithubIcon />
+        </a>
+
+        <a
+          className="pointer-events-auto inline-flex gap-1 items-center justify-center "
+          href="https://www.youtube.com/watch?v=KYXkk4HIvzE"
+          target="_blank"
+        >
+          <span>Presentation</span> <YoutubeIcon />
+        </a>
+      </div>
     </div>
   );
 }
