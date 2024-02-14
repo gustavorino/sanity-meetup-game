@@ -34,6 +34,7 @@ export function StateProvider({ children }: PropsWithChildren) {
   const [mode, setMode] = useState<ContextType["mode"]>("home");
   const [currentCard, setCurrentCard] = useState<number>();
   const [openedMap, setOpenedMap] = useState<Record<string, boolean>>({});
+  const [lock, setLock] = useState(false);
 
   const [cards, setCards] = useState<SanityCard[]>([]);
 
@@ -52,18 +53,23 @@ export function StateProvider({ children }: PropsWithChildren) {
   useSubscription(cards$);
 
   const beginPresentation = useCallback(() => {
+    setLock(true);
     setMode("cards");
+    setTimeout(() => {
+      // just a ugly lock to prevent someone clicking while it's still animating
+      setLock(false);
+    }, 6000);
   }, []);
 
   const openCard = useCallback(
     (position: number) => {
-      if (currentCard != undefined) {
+      if (currentCard != undefined || lock) {
         return;
       }
       setOpenedMap((v) => ({ ...v, [position]: true }));
       setCurrentCard(position);
     },
-    [currentCard]
+    [currentCard, lock]
   );
 
   const closeCard = useCallback(() => {
@@ -95,6 +101,7 @@ export function useGlobalState() {
   return useContext(StateContext);
 }
 
+// handle realtime updates on the studio (community questions)
 function mergeCards(newCard: SanityCard, state: SanityCard[]) {
   if (!newCard) {
     return state;

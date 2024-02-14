@@ -1,9 +1,17 @@
 import { createClient } from "@sanity/client";
 
+export type SanityCard = {
+  _id: string;
+  topic: string;
+  userName?: string;
+  body: any; // ain't got no time for that
+  realTimeQuestion?: boolean;
+};
+
 export const client = createClient({
-  dataset: import.meta.env.VITE_SANITY_DATASET,
+  dataset: import.meta.env.VITE_SANITY_DATASET || "productino",
   useCdn: false,
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID || "a67i5yzg",
   perspective: "published",
   apiVersion: "2024-01-01",
 });
@@ -30,11 +38,3 @@ export function loadCards() {
 export function listenCards() {
   return client.listen<SanityCard>(query);
 }
-
-export type SanityCard = {
-  _id: string;
-  topic: string;
-  userName?: string;
-  body: any;
-  realTimeQuestion?: boolean;
-};

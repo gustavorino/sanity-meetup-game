@@ -7,8 +7,8 @@ export default defineConfig({
   name: 'default',
   title: 'sanity-meetup-game',
 
-  projectId: process.env.VITE_SANITY_PROJECT_ID || 'not-set',
-  dataset: process.env.VITE_SANITY_DATASET || 'production',
+  projectId: process.env.SANITY_PROJECT_ID || 'a67i5yzg',
+  dataset: process.env.SANITY_DATASET || 'production',
 
   plugins: [deskTool(), visionTool()],
 

@@ -1,5 +1,4 @@
 import html2canvas from "html2canvas";
-import { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { twJoin } from "tailwind-merge";
 import { SanityCard } from "../sanity.ts";
@@ -20,7 +19,7 @@ export function InnerCardBackface({
   return (
     <div
       className={twJoin(
-        "target h-[1400px] w-[1000px]    ",
+        "target h-[1400px] w-[1000px]",
         !realTimeQuestion ? "bg-mint" : "bg-salmon"
       )}
     >
@@ -72,37 +71,5 @@ export function wait(time: number = 1000) {
     setTimeout(() => {
       resolve(time);
     }, time)
-  );
-}
-
-const dummyBackcard = {
-  _id: "foobar",
-
-  body: [],
-  realTimeQuestion: false,
-  userName: "Gustavo Bremm",
-  topic: "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-};
-
-export function CardTester() {
-  const [state, setState] = useState("");
-  return (
-    <div className="relative inline-block">
-      <InnerCardBackface {...dummyBackcard} />
-      {!state && (
-        <button
-          onClick={() =>
-            generateBackcard(dummyBackcard).then((data) => {
-              setState(data);
-            })
-          }
-        >
-          Generate image
-        </button>
-      )}
-      {state && (
-        <img src={state} className="absolute left-0 top-0 w-full opacity-50" />
-      )}
-    </div>
   );
 }
